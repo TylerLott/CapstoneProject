@@ -126,5 +126,5 @@ bool isValidReturn(byte message[]){
 //FUNCTION to complete calibration cycle
 float runCalibration(){
   // TODO put logic to run calibration and return calibration constant
-  return 0.1;
+  return 0;
 }
