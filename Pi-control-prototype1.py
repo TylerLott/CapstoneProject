@@ -131,8 +131,12 @@ if __name__ == "__main__":
 
         angle1 = getSensorData(sen1)
 
+        if angle1 < 0.009:
+            break
+
         perInch1 = (angle1 - oldAngle1) / h
 
         oldAngle1 = angle1
         oldPos = newPos
 
+    print("Leveled")
