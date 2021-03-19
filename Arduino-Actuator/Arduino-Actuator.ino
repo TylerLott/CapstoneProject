@@ -3,16 +3,15 @@
 //     11792 steps per inch
 
 long pos = 0;                   // Actuator Position in Pulses
-volatile long steps = 0;                 // Pulses from  Hall Effect sensors
+volatile int steps = 0;                 // Pulses from  Hall Effect sensors
 float conNum = 0.000285;        // Convert to Inches
-bool dir = 0;                   // Direction of Actuator (0=Retract, 1=Extend)
+volatile bool dir = 0;                   // Direction of Actuator (0=Retract, 1=Extend)
 int Speed = 255;
 long prevTimer;
 long prevPos = 0;
 long prevSteps = 0;
 bool homeFlag = 0;              // Flag use to know if the Actuator is home
-int piVal = 0;
-char inputBuffer[16];
+long piVal = 0;
 
 void setup() {
   // SETUP for hall sensor
@@ -24,7 +23,7 @@ void setup() {
   pinMode(11, OUTPUT);
 
   //SETUP for serial
-  Serial.begin(9600);
+  Serial.begin(14400);
   while (!Serial) {
     ;
   }
@@ -37,21 +36,20 @@ void loop () {
   
   // Recieves an int from the pi telling it how many steps to move
   if (Serial.available() > 0){
-    Serial.println(1);
     
     byte val_1 = Serial.read();
     if (val_1 == 'n'){
-      piVal = Serial.parseInt();              // MAX steps is 32000 at a time
+      piVal = Serial.parseInt();
     }
     if (val_1 == 'b') {                         // bh is recieved if home requested from pi
       String val = Serial.readString();
       if (val == "h"){
+        homeFlag=0;
         homeActuator();
-        homeFlag = 0;
         Serial.println("done");
-      } else if (val == "c"){               // cc is recieved if calibrate requested from pi
-        moveActuator(11792);
-        Serial.println("done");
+      }
+      else {   // bc is recieved if calibrate requested from pi
+        piVal = 11792;
       }
     }
     while(Serial.available());
@@ -64,6 +62,7 @@ void loop () {
   if (piVal != 0){
     moveActuator(piVal);
     Serial.println("done");
+    piVal=0;
   }
 
 }
@@ -74,8 +73,10 @@ void loop () {
 bool posFlag = 0;
 
 // move the actuator a distance in a direction
-void moveActuator(long stepsToMove) {
+void moveActuator(int stepsToMove) {
   steps = 0;
+  dir=1;
+  Speed=255;
   prevTimer = millis();
   while (steps < stepsToMove) {
     if (dir == 0) {
@@ -99,7 +100,7 @@ void moveActuator(long stepsToMove) {
 }
 
 
-long updateSteps(long steps) {
+int updateSteps(int steps) {
   return steps;
 }
 
@@ -116,6 +117,7 @@ void countSteps(void) {
 
 void homeActuator(void) {
   prevTimer = millis();
+  dir=0;
   while (homeFlag == 0) {
     Speed = 255;
     analogWrite(10, 0);

@@ -4,9 +4,9 @@ import numpy as np
 
 # ### This code only operates a single platform and sensor -- for use in first prototype video
 
-sensor1 = ''
+sensor1 = '/dev/ttyUSB2'
 
-platform1 = 'COM3'
+platform1 = '/dev/ttyUSB1'
 
 
 def getSensorData(ser):
@@ -24,18 +24,18 @@ def getSensorData(ser):
 
 # Retracts the actuator all the way
 def homeActuator(ser):
-    ser.write(b"bh")
+    ser.write("bh".encode('ascii'))
 
 
 # Extends the actuator an inch
 def calibActuator(ser):
-    ser.write(b"bc")
+    ser.write("bc".encode('ascii'))
 
 
 # Send number of steps for actuator to move
 def moveActuator(ser, inches):
     steps = int(inches * 11792)
-    ser.write(bytes(int(steps)))
+    ser.write(('n' + str(int(steps))).encode('ascii'))
 
 
 def findThirdAngle(ang1, ang2, distBetween):  # gives the third angle relative to the 1st platform
@@ -48,14 +48,14 @@ def findThirdAngle(ang1, ang2, distBetween):  # gives the third angle relative t
 
 if __name__ == "__main__":
     # Initialize all serial connections
-    sen1 = serial.Serial(sensor1, 9600, timeout=1)
+    sen1 = serial.Serial(sensor1, 9600, timeout=10)
     sen1.flush()
 
-    plat1 = serial.Serial(platform1, 9600, timeout=1)
+    plat1 = serial.Serial(platform1, 14400, timeout=10)
     plat1.flush()
 
-    time.sleep(5)
-
+    time.sleep(4)
+    print('connected')
     # Calibration - Sensors
     sen1.write(b"do calibr\n")
 
@@ -67,10 +67,11 @@ if __name__ == "__main__":
         time.sleep(.1)
 
     # Calibration - Actuators
+    print('sensor done')
     homed = False
-    calibrated = False
-
+    print('homing...')
     homeActuator(plat1)
+    plat1.flushInput()
 
     while not homed:
         time.sleep(0.5)
@@ -80,11 +81,15 @@ if __name__ == "__main__":
     print('homed')
 
     zeroAngle1 = getSensorData(sen1)
-
+    print('calibrating...')
+    calibrated = False
     calibActuator(plat1)
+    line = ''
+    plat1.flushInput()
 
     while not calibrated:
         line = plat1.readline().decode('utf-8').rstrip()
+        print(line)
         if line == 'done':
             calibrated = True
         time.sleep(0.1)
@@ -98,6 +103,7 @@ if __name__ == "__main__":
     distBetween = 1 / np.tan(perInch1 * np.pi / 180)
 
     homed = False
+    print('homing...')
     homeActuator(plat1)
 
     while not homed:
@@ -119,10 +125,17 @@ if __name__ == "__main__":
         moving = True
 
         h = oldAngle1 / perInch1
+        if h > 2:
+            h = 2
+        if h < -2:
+            h = -2
         newPos = oldPos + h
+        
+        print('angle ', oldAngle1)
+#         print('moving ', h)
 
         moveActuator(plat1, h)
-
+        line=''
         while moving:
             time.sleep(0.5)
             line = plat1.readline().decode('utf-8').rstrip()
@@ -131,10 +144,10 @@ if __name__ == "__main__":
 
         angle1 = getSensorData(sen1)
 
-        if angle1 < 0.009:
+        if angle1 < 0.005 and angle1 > -0.005:
             break
 
-        perInch1 = (angle1 - oldAngle1) / h
+#         perInch1 = (angle1 - oldAngle1) / h
 
         oldAngle1 = angle1
         oldPos = newPos
