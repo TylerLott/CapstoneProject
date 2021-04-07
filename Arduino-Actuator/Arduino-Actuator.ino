@@ -75,7 +75,6 @@ bool posFlag = 0;
 // move the actuator a distance in a direction
 void moveActuator(int stepsToMove) {
   steps = 0;
-  dir=1;
   Speed=255;
   prevTimer = millis();
   while (steps < stepsToMove) {

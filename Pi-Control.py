@@ -1,14 +1,28 @@
 import serial
 import time
 import numpy as np
+import RPi.GPIO as GPIO
+import RPi_I2C_driver
 
-sensor1 = ''
-sensor2 = ''
+# use $python -m serial.tools.miniterm$ to find the serial ports used
 
-platform1 = 'COM3'
-platform2 = ''
-platform3 = ''
+sensor1 = 'AMA0'
+sensor2 = 'AMA1'
 
+platform1 = 'AMA2'
+platform2 = 'AMA3'
+platform3 = 'AMA4'
+
+btnPress = False
+
+def button_callback(channel):
+    global btnPress
+    btnPress = True
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(16,GPIO.RISING,callback=button_callback)
 
 def getSensorData(ser):
     while True:
@@ -48,6 +62,12 @@ def findThirdAngle(ang1, ang2, distBetween):  # gives the third angle relative t
 
 
 if __name__ == "__main__":
+    
+    mylcd = RPi_I2C_driver.lcd()
+
+    mylcd.lcd_display_string_pos("Platform Booting", 1, 0)
+    mylcd.lcd_display_string_pos("....", 2, 6)
+
     # Initialize all serial connections
     sen1 = serial.Serial(sensor1, 9600, timeout=1)
     sen1.flush()
@@ -65,8 +85,17 @@ if __name__ == "__main__":
     plat3.flush()
 
     time.sleep(5)
+    
+    mylcd.lcd_display_string_pos("Press to Start", 2, 1)
+    
+    global btnPress
+    while not btnPress:
+        time.sleep(0.05)
 
     # Calibration - Sensors
+    mylcd.lcd_clear()
+    mylcd.lcd_display_string_pos("Calibrating...", 1, 1)
+
     sen1.write(b"do calibr\n")
     sen2.write(b"do calibr\n")
 
@@ -130,6 +159,9 @@ if __name__ == "__main__":
             homed[1] = True
         time.sleep(0.1)
     print('homed')
+    
+    mylcd.lcd_clear()
+    mylcd.lcd_display_string_pos("Success", 1, 4)
 
     # Initialize important values
     MIN_ACTUATOR = 0
@@ -140,8 +172,24 @@ if __name__ == "__main__":
     oldAngle3 = findThirdAngle(oldAngle1, oldAngle2, distBetween)
     oldPos = np.array([0, 0, 0])
     retry = 0
+    
+    mylcd.lcd_clear()
+    mylcd.lcd_display_string_pos("Leveling...", 1, 3)
+    mylcd.lcd_display_string_pos("A:{0:.3f}  B:{1:.3f}".format(oldAngle1,oldAngle2), 2, 0)
+
+    btnPress = False
 
     while True:
+        global btnPress
+        if btnPress:
+            print('Leveling Aborted')
+            mylcd.lcd_display_string_pos("Leveling Aborted", 1, 0)
+            global btnPress
+            btnPress = False
+            while not btnPress:
+                time.sleep(0.05)
+            continue
+            
         moving = [True, True, True]
         # this uses linear algebra to find the amount to move each actuator quickly
         a = np.array([[perInch1, perInch1, 0],
@@ -192,6 +240,16 @@ if __name__ == "__main__":
         angle1 = getSensorData(sen1)
         angle2 = getSensorData(sen2)
         angle3 = findThirdAngle(angle1, angle2, distBetween)
+        
+        mylcd.lcd_display_string_pos("A:{0:.3f}  B:{1:.3f}".format(angle1,angle2), 2, 0)
+        
+        if angle1 < 0.01 and angle1 > -0.01 and angle2 < 0.01 and angle2 > -0.01:
+            print('Leveling Done')
+            print('-- Final Sensor Values --')
+            print('Sensor 1: {}  Sensor 2: {}'.format(angle1, angle2))
+            
+            mylcd.lcd_display_string_pos("Leveling Done".format(angle1,angle2), 1, 1)
+            break
 
         perInch1 = (angle1 - oldAngle1) / newH[0]
         perInch2 = (angle2 - oldAngle2) / newH[1]
@@ -202,4 +260,4 @@ if __name__ == "__main__":
         oldAngle3 = angle3
 
         oldPos = newPos
-
+        

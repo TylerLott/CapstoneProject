@@ -1,12 +1,17 @@
 import serial
 import time
 import numpy as np
+import RPi_I2C_driver as disp
 
 # ### This code only operates a single platform and sensor -- for use in first prototype video
 
-sensor1 = '/dev/ttyUSB2'
+sensor1 = '/dev/ttyUSB0'
 
 platform1 = '/dev/ttyUSB1'
+
+mylcd = disp.lcd()
+mylcd.lcd_display_string_pos("Platform Booting", 1, 0)
+mylcd.lcd_display_string_pos("....", 2, 6)
 
 
 def getSensorData(ser):
@@ -47,6 +52,9 @@ def findThirdAngle(ang1, ang2, distBetween):  # gives the third angle relative t
 
 
 if __name__ == "__main__":
+    mylcd.lcd_clear()
+    mylcd.lcd_display_string_pos("Connecting To", 1, 2)
+    mylcd.lcd_display_string_pos("Platforms...", 2, 2)
     # Initialize all serial connections
     sen1 = serial.Serial(sensor1, 9600, timeout=10)
     sen1.flush()
@@ -98,7 +106,8 @@ if __name__ == "__main__":
     calibAngle1 = getSensorData(sen1)
 
     # calib is moving the middle actuator up 1 inch
-    perInch1 = calibAngle1 - zeroAngle1  # angle from plat2 to plat1
+    perInch1 = zeroAngle1 - calibAngle1  # angle from plat2 to plat1
+    print('angle constant', perInch1)
 
     distBetween = 1 / np.tan(perInch1 * np.pi / 180)
 
@@ -132,7 +141,9 @@ if __name__ == "__main__":
         newPos = oldPos + h
         
         print('angle ', oldAngle1)
-#         print('moving ', h)
+        print('moving ', h)
+        if oldAngle1 < 0.01 and oldAngle1 > -0.01:
+            h = h/2
 
         moveActuator(plat1, h)
         line=''
@@ -144,10 +155,11 @@ if __name__ == "__main__":
 
         angle1 = getSensorData(sen1)
 
-        if angle1 < 0.005 and angle1 > -0.005:
+        if angle1 < 0.01 and angle1 > -0.01:
+            print('final angle', angle1)
             break
 
-#         perInch1 = (angle1 - oldAngle1) / h
+#         perInch1 = abs((angle1 - oldAngle1) / h)
 
         oldAngle1 = angle1
         oldPos = newPos
