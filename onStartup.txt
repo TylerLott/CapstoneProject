@@ -1,0 +1,17 @@
+Follow this to get the program to automatically execute on startup:
+
+1. Open terminal
+
+2. Enter 
+	
+
+	$sudo nano /etc/rc.local$
+
+
+3. Below the line containing "fi" add the code
+
+
+	sudo python /home/pi/Desktop/CapstoneProject &
+
+
+Test by rebooting the Pi.
