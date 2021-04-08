@@ -3,15 +3,18 @@ import time
 import numpy as np
 import RPi.GPIO as GPIO
 import RPi_I2C_driver
+import sys
 
 # use $python -m serial.tools.miniterm$ to find the serial ports used
+# need to set rules file to attach the ardinos to the correct usb ports
+# go to /var/log/messages to find the attaching identifier numbers
 
-sensor1 = 'AMA0'
-sensor2 = 'AMA1'
+sensor1 = '/dev/ttyUSB1'
+sensor2 = '/dev/ttyUSB0'
 
-platform1 = 'AMA2'
-platform2 = 'AMA3'
-platform3 = 'AMA4'
+platform1 = '/dev/ttyUSB2'
+platform2 = '/dev/ttyUSB3'
+platform3 = '/dev/ttyUSB4'
 
 btnPress = False
 
@@ -50,7 +53,7 @@ def calibActuator(ser):
 # Send number of steps for actuator to move
 def moveActuator(ser, inches):
     steps = int(inches * 11792)
-    ser.write(bytes(int(steps)))
+    ser.write(('n' + str(int(steps))).encode('ascii'))
 
 
 def findThirdAngle(ang1, ang2, distBetween):  # gives the third angle relative to the 1st platform
@@ -68,27 +71,34 @@ if __name__ == "__main__":
     mylcd.lcd_display_string_pos("Platform Booting", 1, 0)
     mylcd.lcd_display_string_pos("....", 2, 6)
 
-    # Initialize all serial connections
-    sen1 = serial.Serial(sensor1, 9600, timeout=1)
-    sen1.flush()
+    try:
+            # Initialize all serial connections
+        sen1 = serial.Serial(sensor1, 9600, timeout=1)
+        sen1.flush()
 
-    sen2 = serial.Serial(sensor2, 9600, timeout=1)
-    sen2.flush()
+        sen2 = serial.Serial(sensor2, 9600, timeout=1)
+        sen2.flush()
 
-    plat1 = serial.Serial(platform1, 9600, timeout=1)
-    plat1.flush()
+        plat1 = serial.Serial(platform1, 9600, timeout=1)
+        plat1.flush()
 
-    plat2 = serial.Serial(platform2, 9600, timeout=1)
-    plat2.flush()
+        plat2 = serial.Serial(platform2, 9600, timeout=1)
+        plat2.flush()
 
-    plat3 = serial.Serial(platform3, 9600, timeout=1)
-    plat3.flush()
+        plat3 = serial.Serial(platform3, 9600, timeout=1)
+        plat3.flush()
 
-    time.sleep(5)
-    
+        time.sleep(5)
+    except Exception as e:
+        mylcd.lcd_clear()
+        mylcd.lcd_display_string_pos("Error Connecting", 1, 0)
+        mylcd.lcd_display_string_pos(str(e)[-13:-1], 2, 0)
+        print(e)
+        sys.exit()
+        
     mylcd.lcd_display_string_pos("Press to Start", 2, 1)
     
-    global btnPress
+#     global btnPress
     while not btnPress:
         time.sleep(0.05)
 
@@ -96,6 +106,7 @@ if __name__ == "__main__":
     mylcd.lcd_clear()
     mylcd.lcd_display_string_pos("Calibrating...", 1, 1)
 
+    print('sensor calib sent')
     sen1.write(b"do calibr\n")
     sen2.write(b"do calibr\n")
 
@@ -110,7 +121,8 @@ if __name__ == "__main__":
             cal2 = True
         if cal1 and cal2:
             calDone = True
-        time.sleep(.1)
+        time.sleep(.25)
+    print('sensor calib recv')
 
     # Calibration - Actuators
     plats = [plat1, plat2, plat3]
@@ -137,18 +149,24 @@ if __name__ == "__main__":
         line = plat2.readline().decode('utf-8').rstrip()
         if line == 'done':
             calibrated = True
-        time.sleep(0.1)
+        time.sleep(0.25)
     print('calibrated')
 
     calibAngle1 = getSensorData(sen1)
     calibAngle2 = getSensorData(sen2)
 
     # calib is moving the middle actuator up 1 inch
-    perInch1 = calibAngle1 - zeroAngle1  # angle from plat2 to plat1
-    perInch2 = calibAngle2 - zeroAngle2  # angle from plat2 to plat3
+    perInch1 = zeroAngle1 - calibAngle1 # angle from plat2 to plat1
+    perInch2 = zeroAngle2 - calibAngle2 # angle from plat2 to plat3
     perInch3 = (perInch1 + perInch2) / 2  # angle from plat1 to plat3
+    
+    print(perInch1)
+    print(perInch2)
+    print(perInch3)
 
-    distBetween = 1 / np.tan(perInch3 * np.pi / 180)
+    distBetween = np.abs(1 / np.tan(perInch3 * np.pi / 180))
+
+    print('DISTANCE BETWEEN: ', distBetween)
 
     homed[1] = False
     homeActuator(plat2)
@@ -157,7 +175,7 @@ if __name__ == "__main__":
         line = plat2.readline().decode('utf-8').rstrip()
         if line == 'done':
             homed[1] = True
-        time.sleep(0.1)
+        time.sleep(0.25)
     print('homed')
     
     mylcd.lcd_clear()
@@ -180,29 +198,43 @@ if __name__ == "__main__":
     btnPress = False
 
     while True:
-        global btnPress
+#         global btnPress
         if btnPress:
             print('Leveling Aborted')
             mylcd.lcd_display_string_pos("Leveling Aborted", 1, 0)
-            global btnPress
+#             global btnPress
             btnPress = False
             while not btnPress:
                 time.sleep(0.05)
             continue
             
-        moving = [True, True, True]
         # this uses linear algebra to find the amount to move each actuator quickly
-        a = np.array([[perInch1, perInch1, 0],
-                  [0, perInch2, perInch2],
-                  [perInch3, 0, perInch3]])
+        a = np.array([[perInch3, 0, -perInch3],
+                  [perInch3, perInch3, 0],
+                  [0, -perInch3, perInch3]])
+        
+        print('a array', a)
+        
         b = np.array([oldAngle1, oldAngle2, oldAngle3])
 
+        print('b array', b)
+
         newH = np.linalg.solve(a, b)  # array of how far each platform needs to move
+        newH = newH - oldPos
+        for i in range(len(newH)):
+            if newH[i] > 2:
+                newH[i] = 2
+            if newH[i] < -2:
+                newH[i] = -2
+        print('Move Amt ', newH)
         newPos = newH + oldPos
+        print('Position before check ', newPos)
 
         if np.amin(newPos) < MIN_ACTUATOR:
-            newPos = newPos + np.amin(newPos)
-            newH = newH + np.amin(newPos)  # corrects for if the result tells platform to move lower than it can
+            correct_amt = np.abs(np.amin(newPos))
+            print('amin: ', correct_amt)
+            newPos = newPos + correct_amt
+            newH = newH + correct_amt  # corrects for if the result tells platform to move lower than it can
             if np.amax(newPos) > MAX_ACTUATOR:
                 retry += 1
                 if retry < 5:
@@ -213,9 +245,10 @@ if __name__ == "__main__":
                     break
             retry = 0
 
-        if np.amin(newPos) > MAX_ACTUATOR:
-            newPos = newPos - (np.amax(newPos) - MAX_ACTUATOR)
-            newH = newH - (np.amax(newPos) - MAX_ACTUATOR)
+        if np.amax(newPos) > MAX_ACTUATOR:
+            correct_amt = (np.amax(newPos) - MAX_ACTUATOR)
+            newPos = newPos - correct_amt
+            newH = newH - correct_amt
             if np.amax(newPos) < MIN_ACTUATOR:
                 retry += 1
                 if retry < 5:
@@ -226,22 +259,33 @@ if __name__ == "__main__":
                     break
             retry = 0
 
+        print('Positions after check ', newPos)
         moveActuator(plat1, newH[0])
         moveActuator(plat2, newH[1])
         moveActuator(plat3, newH[2])
-
-        while all(moving):
+        
+        moving = [True, True, True]
+        
+        print('moving array before: ', moving)
+        print('moving...')
+        while any(plat==True for plat in moving):
             time.sleep(0.5)
             for i in range(len(plats)):
                 line = plats[i].readline().decode('utf-8').rstrip()
+                print('platform ', i, ' line: ', line)
                 if line == 'done':
                     moving[i] = False
 
+        print('moving array before: ', moving)
+        print('done moving')
         angle1 = getSensorData(sen1)
         angle2 = getSensorData(sen2)
         angle3 = findThirdAngle(angle1, angle2, distBetween)
         
         mylcd.lcd_display_string_pos("A:{0:.3f}  B:{1:.3f}".format(angle1,angle2), 2, 0)
+        print('angle 1 ', angle1)
+        print('angle 2 ', angle2)
+        print('angle 3 ', angle3)
         
         if angle1 < 0.01 and angle1 > -0.01 and angle2 < 0.01 and angle2 > -0.01:
             print('Leveling Done')
@@ -251,9 +295,9 @@ if __name__ == "__main__":
             mylcd.lcd_display_string_pos("Leveling Done".format(angle1,angle2), 1, 1)
             break
 
-        perInch1 = (angle1 - oldAngle1) / newH[0]
-        perInch2 = (angle2 - oldAngle2) / newH[1]
-        perInch3 = (angle3 - oldAngle3) / newH[2]
+#         perInch1 = (angle1 - oldAngle1) / newH[0]
+#         perInch2 = (angle2 - oldAngle2) / newH[1]
+#         perInch3 = (angle3 - oldAngle3) / newH[2]
 
         oldAngle1 = angle1
         oldAngle2 = angle2

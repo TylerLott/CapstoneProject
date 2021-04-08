@@ -6,7 +6,7 @@ long pos = 0;                   // Actuator Position in Pulses
 volatile int steps = 0;                 // Pulses from  Hall Effect sensors
 float conNum = 0.000285;        // Convert to Inches
 volatile bool dir = 0;                   // Direction of Actuator (0=Retract, 1=Extend)
-int Speed = 255;
+volatile int Speed = 255;
 long prevTimer;
 long prevPos = 0;
 long prevSteps = 0;
@@ -23,7 +23,7 @@ void setup() {
   pinMode(11, OUTPUT);
 
   //SETUP for serial
-  Serial.begin(14400);
+  Serial.begin(9600);
   while (!Serial) {
     ;
   }
@@ -32,7 +32,7 @@ void setup() {
 
 void loop () {
 
-  piVal = 0;
+  piVal = -666666;
   
   // Recieves an int from the pi telling it how many steps to move
   if (Serial.available() > 0){
@@ -57,12 +57,11 @@ void loop () {
 
   if (piVal < 0) { dir = 0; } else { dir = 1; }
 
-  piVal = abs(piVal);
-
-  if (piVal != 0){
+  if (piVal != -666666){
+    piVal = abs(piVal);
     moveActuator(piVal);
     Serial.println("done");
-    piVal=0;
+    piVal = -666666;
   }
 
 }
@@ -75,9 +74,9 @@ bool posFlag = 0;
 // move the actuator a distance in a direction
 void moveActuator(int stepsToMove) {
   steps = 0;
-  Speed=255;
   prevTimer = millis();
   while (steps < stepsToMove) {
+    Speed = 255;
     if (dir == 0) {
       analogWrite(10, 0);
       analogWrite(11, Speed);
@@ -127,7 +126,6 @@ void homeActuator(void) {
         analogWrite(10, 0);
         analogWrite(11, 0);
         steps = 0;
-        Speed = 0;
         homeFlag = 1;
       }
     } else {

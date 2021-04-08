@@ -5,6 +5,7 @@ float sensorReading;
 
 
 SoftwareSerial sensorSerial(2,3); // RX, TX
+// pin d10 used for servo
 
 void setup() {
   // SETUP for the serial over USB connection to Pi
@@ -22,6 +23,7 @@ void setup() {
 void loop() {
 
   sensorReading = getMeasurment(offset);
+//  Serial.println(sensorReading);
 
   // If the program recieves "get value\n" from the pi it sends the most recent sensor reading
   // If the program recieves "do calibr\n" from the pi it sends the most recent sensor reading
@@ -73,7 +75,6 @@ float getMeasurment(float offset){
 
 // FUNCTION takes a single measurement from the sensor
 float singleMeasure(){
-  
   byte message[] = {0x77, 0x04, 0x00, 0x01, 0x05};
   sensorSerial.write(message, sizeof(message));
   delay(16);
@@ -84,6 +85,7 @@ float singleMeasure(){
   while (sensorSerial.available() > 0) {
       byte b = sensorSerial.read();
       rec[i] = b;
+      // Serial.println(b);
       i++;
     }
     
@@ -119,7 +121,8 @@ bool isValidReturn(byte message[]){
   // TODO actually put the logic to check the result
 
   // simple check of the identifier bit 
-  return (message[0]==119);
+  // return (message[0]==119);
+  return true;
 }
 
 

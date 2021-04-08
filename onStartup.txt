@@ -11,7 +11,7 @@ Follow this to get the program to automatically execute on startup:
 3. Below the line containing "fi" add the code
 
 
-	sudo python /home/pi/Desktop/CapstoneProject &
+	sudo python /home/pi/Desktop/CapstoneProject/Pi-Control.py &
 
 
 Test by rebooting the Pi.
