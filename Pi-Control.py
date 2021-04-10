@@ -9,10 +9,10 @@ import sys
 # need to set rules file to attach the ardinos to the correct usb ports
 # go to /var/log/messages to find the attaching identifier numbers
 
-sensor1 = '/dev/ttyUSB1'
+sensor1 = '/dev/ttyUSB2'
 sensor2 = '/dev/ttyUSB0'
 
-platform1 = '/dev/ttyUSB2'
+platform1 = '/dev/ttyUSB1'
 platform2 = '/dev/ttyUSB3'
 platform3 = '/dev/ttyUSB4'
 
@@ -148,13 +148,11 @@ if __name__ == "__main__":
     calibAngle2 = getSensorData(sen2)
 
     # calib is moving the middle actuator up 1 inch
-    perInch1 = zeroAngle1 - calibAngle1 # angle from plat2 to plat1
-    perInch2 = zeroAngle2 - calibAngle2 # angle from plat2 to plat3
+    perInch1 = calibAngle1 - zeroAngle1 # angle from plat2 to plat1
+    perInch2 = calibAngle2 - zeroAngle2# angle from plat2 to plat3
     
     print(perInch1)
     print(perInch2)
-
-    print('DISTANCE BETWEEN: ', distBetween)
 
     homed[1] = False
     homeActuator(plat2)
@@ -195,8 +193,9 @@ if __name__ == "__main__":
                 time.sleep(0.05)
             continue
             
-	newH[0] = oldAngle1 / perInch1
-	newH[2] = oldAngle2 / perInch2
+        newH=[0,0,0]
+        newH[0] = oldAngle1 / perInch1
+        newH[2] = oldAngle2 / perInch2
 
         for i in range(len(newH)):
             if newH[i] > 2:
@@ -258,22 +257,22 @@ if __name__ == "__main__":
         angle1 = getSensorData(sen1)
         angle2 = getSensorData(sen2)
         
-        mylcd.lcd_display_string_pos("A:{0:.3f}  B:{1:.3f}".format(angle1,angle2), 2, 0)
+        mylcd.lcd_display_string_pos("A:{0:.3f}  B:{1:.3f}".format(angle2,angle1), 2, 0)
         print('angle 1 ', angle1)
         print('angle 2 ', angle2)
         
-	if angle1 < 1 and angle1 > -1:
-		perInch1 = perInch1 * 0.9
+        if angle1 < 1 and angle1 > -1:
+            perInch1 = perInch1 * 1.1
 
-	if angle2 < 1 and angle2 > -1:
-		perInch2 = perInch2 * 0.9        
+        if angle2 < 1 and angle2 > -1:
+            perInch2 = perInch2 * 1.1        
 
-	if angle1 < 0.01 and angle1 > -0.01 and angle2 < 0.01 and angle2 > -0.01:
+        if angle1 < 0.008 and angle1 > -0.008 and angle2 < 0.008 and angle2 > -0.008:
             print('Leveling Done')
             print('-- Final Sensor Values --')
             print('Sensor 1: {}  Sensor 2: {}'.format(angle1, angle2))
             
-            mylcd.lcd_display_string_pos("Leveling Done".format(angle1,angle2), 1, 1)
+            mylcd.lcd_display_string_pos("Leveling Done", 1, 1)
             break
 
 #         perInch1 = (angle1 - oldAngle1) / newH[0]
