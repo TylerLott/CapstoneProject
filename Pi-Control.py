@@ -56,14 +56,6 @@ def moveActuator(ser, inches):
     ser.write(('n' + str(int(steps))).encode('ascii'))
 
 
-def findThirdAngle(ang1, ang2, distBetween):  # gives the third angle relative to the 1st platform
-    pos1 = distBetween * np.sin(ang1 * np.pi / 180)
-    pos2 = distBetween * np.sin(ang2 * np.pi / 180)
-    d = pos2 - pos1
-    ang3 = np.arctan((d / distBetween) * np.pi * 180)
-    return ang3
-
-
 if __name__ == "__main__":
     
     mylcd = RPi_I2C_driver.lcd()
@@ -158,13 +150,9 @@ if __name__ == "__main__":
     # calib is moving the middle actuator up 1 inch
     perInch1 = zeroAngle1 - calibAngle1 # angle from plat2 to plat1
     perInch2 = zeroAngle2 - calibAngle2 # angle from plat2 to plat3
-    perInch3 = (perInch1 + perInch2) / 2  # angle from plat1 to plat3
     
     print(perInch1)
     print(perInch2)
-    print(perInch3)
-
-    distBetween = np.abs(1 / np.tan(perInch3 * np.pi / 180))
 
     print('DISTANCE BETWEEN: ', distBetween)
 
@@ -187,7 +175,6 @@ if __name__ == "__main__":
 
     oldAngle1 = getSensorData(sen1)
     oldAngle2 = getSensorData(sen2)
-    oldAngle3 = findThirdAngle(oldAngle1, oldAngle2, distBetween)
     oldPos = np.array([0, 0, 0])
     retry = 0
     
@@ -208,19 +195,9 @@ if __name__ == "__main__":
                 time.sleep(0.05)
             continue
             
-        # this uses linear algebra to find the amount to move each actuator quickly
-        a = np.array([[perInch3, 0, -perInch3],
-                  [perInch3, perInch3, 0],
-                  [0, -perInch3, perInch3]])
-        
-        print('a array', a)
-        
-        b = np.array([oldAngle1, oldAngle2, oldAngle3])
+	newH[0] = oldAngle1 / perInch1
+	newH[2] = oldAngle2 / perInch2
 
-        print('b array', b)
-
-        newH = np.linalg.solve(a, b)  # array of how far each platform needs to move
-        newH = newH - oldPos
         for i in range(len(newH)):
             if newH[i] > 2:
                 newH[i] = 2
@@ -280,14 +257,18 @@ if __name__ == "__main__":
         print('done moving')
         angle1 = getSensorData(sen1)
         angle2 = getSensorData(sen2)
-        angle3 = findThirdAngle(angle1, angle2, distBetween)
         
         mylcd.lcd_display_string_pos("A:{0:.3f}  B:{1:.3f}".format(angle1,angle2), 2, 0)
         print('angle 1 ', angle1)
         print('angle 2 ', angle2)
-        print('angle 3 ', angle3)
         
-        if angle1 < 0.01 and angle1 > -0.01 and angle2 < 0.01 and angle2 > -0.01:
+	if angle1 < 1 and angle1 > -1:
+		perInch1 = perInch1 * 0.9
+
+	if angle2 < 1 and angle2 > -1:
+		perInch2 = perInch2 * 0.9        
+
+	if angle1 < 0.01 and angle1 > -0.01 and angle2 < 0.01 and angle2 > -0.01:
             print('Leveling Done')
             print('-- Final Sensor Values --')
             print('Sensor 1: {}  Sensor 2: {}'.format(angle1, angle2))
@@ -297,11 +278,9 @@ if __name__ == "__main__":
 
 #         perInch1 = (angle1 - oldAngle1) / newH[0]
 #         perInch2 = (angle2 - oldAngle2) / newH[1]
-#         perInch3 = (angle3 - oldAngle3) / newH[2]
 
         oldAngle1 = angle1
         oldAngle2 = angle2
-        oldAngle3 = angle3
 
         oldPos = newPos
         
