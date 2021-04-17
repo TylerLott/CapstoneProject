@@ -30,14 +30,14 @@ void loop() {
   if (Serial.available() > 0) {
     String data = Serial.readString();
     data.trim();
-    if (data.equals("get value")){
+    if (data.equals("g")){
       Serial.println(sensorReading, 3);
     }
-    else if (data == "do calibr") {
+    else if (data == "c") {
       offset = runCalibration();
-      Serial.println("done");
+      Serial.println("d");
     }else{
-      Serial.println("resend");
+      Serial.println("r");
       while(Serial.available());
     }
   }
@@ -62,7 +62,7 @@ float getMeasurment(float offset){
       sumMeasure += sq(measured);
       if (measured < 0) {negCount++;}
     }else{
-      Serial.println("err");
+      Serial.println("e");
       i--;
     }
   }
