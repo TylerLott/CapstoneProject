@@ -15,3 +15,71 @@ Follow this to get the program to automatically execute on startup:
 
 
 Test by rebooting the Pi.
+
+
+Follow this to get the pi to host a webserver through it's own wifi network
+
+1. run these
+
+	$sudo apt-get install hostapd$
+	$sudo apt-get install dnsmasq$
+
+	$sudo systemctl stop hostapd$
+	$sudo systemctl stop dnsmasq$
+
+2. create this file 
+
+	$sudo nano /etc/hostapd/hostapd.conf$
+
+
+interface=wlan0
+driver=nl80211
+ssid=RPiHotSpot
+hw_mode=g
+channel=6
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=1234567890
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+
+
+3. change this file 
+
+	$ sudo nano /etc/default/hostapd$ 
+
+uncomment the 
+	#DAEMON_CONF=""
+
+change to 
+	 #DAEMON_CONF="/etc/default/hostapd"
+
+4. change this file
+
+	$ sudo nano /etc/dnsmasq.conf$
+
+add this to the end:
+
+#RPiHotspot config - No Intenet
+interface=wlan0
+domain-needed
+bogus-priv
+dhcp-range=192.168.50.150,192.168.50.200,255.255.255.0,12h
+
+5. open this and change
+
+	$sudo nano /etc/dhcpcd.conf$
+
+add this to end:
+
+nohook wpa_supplicant
+interface wlan0
+static ip_address=192.168.50.10/24
+static routers=192.168.50.1
+
+Done, see https://superuser.com/questions/1503862/raspberry-pi-4-hostapd-hotspot-not-visible for a detailed overview
+
