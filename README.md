@@ -1,17 +1,18 @@
-#USU MAE Captstone Project - L3Harris Self-Leveling Platform 
+USU MAE Captstone Project - L3Harris Self-Leveling Platform 
+===========================================================
 
-#Table of Contents:
+# Table of Contents:
 
-* [About the Team](#About the Team)
-	* [Members](##Members)
-* [About the Project](#About the Project)
-	* [Specifications](##Specifications)
-	* [Implementation] (##Implementation)
-	* [Short Mechanical Overview] (##Short Mechanical Overview)
-	* [Electronics Overview] (##Electronics Overview)
-	* [Code Overview](##Code Overview)
-*[Installation](#Installation)
-	*[Raspberry Pi as Wifi Host](##Raspberry Pi as Wifi Host)
+* [About the Team](#about-the-team)
+	* [Members](##members)
+* [About the Project](#about-the-project)
+	* [Specifications](##specifications)
+	* [Implementation] (##implementation)
+	* [Short Mechanical Overview] (##short-mechanical-overview)
+	* [Electronics Overview] (##electronics-overview)
+	* [Code Overview](##Code-overview)
+*[Installation](#installation)
+	*[Raspberry Pi as Wifi Host](##raspberry-pi-as-wifi-host)
 	*[Webserver on Pi](##Webserver on Pi)
 	*[Run on Boot](#Run on Boot)
 *[Using Software](#Using Software)
@@ -29,63 +30,63 @@
 	*[Communication Protocol](##Communication Protocol)
 
 
-#About the Team
+# About the Team
 
 text
 
-##Members
+## Members
 
 text - images
 
-#About the Project
+# About the Project
 
 Intro
 
-##Specifications
+## Specifications
 
 text
 list
 
-##Implementation
+## Implementation
 
 stuff
 
-##Short Mechanical Overview
+## Short Mechanical Overview
 
-##Electronics Overview
+## Electronics Overview
 
-##Code Overview
+## Code Overview
 
-#Installation
+# Installation
 
-##Raspberry Pi as Wifi Host
+## Raspberry Pi as Wifi Host
 
-##Webserver on Pi
+## Webserver on Pi
 
-##Run on Boot
+## Run on Boot
 
 # Using Software
 
-##Physical Interface
+## Physical Interface
 
-###LCD Display
+### LCD Display
 
-###Button Control
+### Button Control
 
-###Error Codes
+### Error Codes
 
-##Debug Interface
+## Debug Interface
 
-###Platform Interface
+### Platform Interface
 
-###User Input
+### User Input
 
-###Terminal Output
+### Terminal Output
 
-#Suggested Improvements
+# Suggested Improvements
 
-##Data Transfer
+## Data Transfer
 
-##Speed of Program
+## Speed of Program
 
-##Communication Protocol
+## Communication Protocol
