@@ -1,8 +1,10 @@
 
 #include <SoftwareSerial.h>
+#include <VarSpeedServo.h>
 float offset = 0;
 float sensorReading;
 
+//VarSpeedServo myservo;
 
 SoftwareSerial sensorSerial(2,3); // RX, TX
 // pin d10 used for servo
@@ -17,6 +19,10 @@ void setup() {
 
   // SETUP for the software serial connection to sensor
   sensorSerial.begin(9600);
+
+//  myservo.attach(10);
+//  myservo.write(0,20,true);
+
 }
 
 
@@ -30,14 +36,14 @@ void loop() {
   if (Serial.available() > 0) {
     String data = Serial.readString();
     data.trim();
-    if (data.equals("get value")){
+    if (data.equals("g")){
       Serial.println(sensorReading, 3);
     }
-    else if (data == "do calibr") {
+    else if (data.equals("c")) {
       offset = runCalibration();
-      Serial.println("done");
+      Serial.println("d");
     }else{
-      Serial.println("resend");
+      Serial.println("r");
       while(Serial.available());
     }
   }
@@ -62,7 +68,7 @@ float getMeasurment(float offset){
       sumMeasure += sq(measured);
       if (measured < 0) {negCount++;}
     }else{
-      Serial.println("err");
+      Serial.println("e");
       i--;
     }
   }
@@ -129,5 +135,17 @@ bool isValidReturn(byte message[]){
 //FUNCTION to complete calibration cycle
 float runCalibration(){
   // TODO put logic to run calibration and return calibration constant
+//  float meas1, meas2;
+//  float sum_offset = 0;
+//  for (int i=0;i < 3;i++){
+//    meas1 = getMeasurment(0);
+//    myservo.write(135,20,true);
+//    myservo.wait();
+//    meas2 = getMeasurment(0);
+//    myservo.write(0,20,true);
+//    myservo.wait();
+//    sum_offset += (meas1 + meas2) / 2;
+//  }
+//  return sum_offset / 3;
   return 0;
 }

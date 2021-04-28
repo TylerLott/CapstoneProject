@@ -13,5 +13,9 @@ Follow this to get the program to automatically execute on startup:
 
 	sudo python /home/pi/Desktop/CapstoneProject/Pi-Control.py &
 
+changeg this to main
+
+also webserver is in the /home/pi/.bashrc file
+
 
 Test by rebooting the Pi.

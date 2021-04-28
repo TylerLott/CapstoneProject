@@ -1,0 +1,27 @@
+To setup the database for this project sqlite must be installed on the system.
+
+Run these commands from terminal while in this repository.
+
+	$sqlite platform.db
+
+	CREATE TABLE data(
+	row       INTEGER,
+	actuatorL REAL,
+	sensorL   REAL,
+	actuatorC REAL,
+	sensorR   REAL,
+	actuatorR REAL
+	);
+
+	CREATE TABLE terminal(
+	entry_num    INT,
+	terminal_out TEXT
+	);
+
+	CREATE TABLE user_commands(
+	row    INT,
+	type   TEXT,
+	amount REAL
+	);
+
+

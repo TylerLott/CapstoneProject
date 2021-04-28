@@ -14,7 +14,7 @@ bool homeFlag = 0;              // Flag use to know if the Actuator is home
 long piVal = 0;
 
 void setup() {
-  // SETUP for hall sensor
+  // SETUP for hall sensor pin 3 for main board because pin 2 is broken, pin2 for the rest
   pinMode(2, INPUT);
   attachInterrupt(digitalPinToInterrupt(2), countSteps, RISING);
 
@@ -46,7 +46,7 @@ void loop () {
       if (val == "h"){
         homeFlag=0;
         homeActuator();
-        Serial.println("done");
+        Serial.println("d");
       }
       else {   // bc is recieved if calibrate requested from pi
         piVal = 11792;
@@ -60,7 +60,7 @@ void loop () {
   if (piVal != -666666){
     piVal = abs(piVal);
     moveActuator(piVal);
-    Serial.println("done");
+    Serial.println("d");
     piVal = -666666;
   }
 

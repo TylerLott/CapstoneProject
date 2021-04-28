@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Platform Interface</title>
+    </head>
+	<style>
+		* {
+			box-sizing:border-box;
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		body {
+			display: flex;
+			min-height: 100vh;
+			flex-direction: row;
+			margin: 0;
+			background: #B1A7A6;
+		}
+		.col-1 {
+			background: #D7E8D4;
+			flex: 1;
+		}
+		.col-2 {
+			display: flex;
+			flex-direction: column;
+			flex: 5;
+		}
+		.content {
+			display: flex;
+			flex-direction: row;
+		}
+		.content > .act-col {
+			flex: 4;
+			min-height: 400px;
+		}
+		header {
+			background: #161A1D;
+			height: 100px;
+		}
+		footer{
+			background: #B1A7A6;
+			height: 200px;
+		}
+		header, footer, article, nav {
+			padding: 1em;
+		}
+		div.act-col {
+			width: 25vw;
+		}
+		div.sen-col {
+			width: 25vw;
+			
+		}
+		input[type="number"] {
+			display: block;
+			margin: 0 auto;
+			width: 160px;
+			text-align: center;
+			border-radius: 2px;
+			border: none;
+		}
+		input[type="submit"] {
+			display: block;
+			margin : 0 auto;
+		}
+		.center {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding-top:15px;
+		}
+		.vert_center{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			vertical-align: middle;
+		}
+		.txtCenter {
+			text-align: center;
+		}
+		.columns {
+			text-align: center;
+			color: #F5F3F4;
+		}
+		div.output {
+			background-color: rgba(0,0,0,.25);
+		}
+		.p-out {
+			font-weight: 900;
+			font-size: 14pt;
+			color: #E5383B;
+			text-shadow: -1px 1px 0 #000, 1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
+		}
+		.p-out-small {
+			font-weight: 600;
+			font-size: 10pt;
+			color: #E5383B;
+			text-shadow: -1px 1px 0 #000, 1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
+		}
+		main{
+			background-image: linear-gradient(#161A1D, #B1A7A6);
+		}
+		.button{
+			display: inline-block;
+			padding: 0.35em 1.2em;
+			border: 0.1em solid #E5383B;
+			margin:0 0.3em 0.3em 0;
+			border-radius: 0.2em;
+			box-sizing: border-box;
+			text-decoration:none;
+			font-weight:300;
+			color: #F5F3F4;
+			text-align:center;
+			transition: all 0.4s;
+			background-color: #E5383B;
+			width: 160px;
+		}
+		.button:hover {
+			color: #E5383B;
+			background-color: #F5F3F4;
+		}
+		@ media all and (max-width:30em){
+			.button{
+				display: block;
+				margin: 0.4em auto;
+
+			}	
+		}
+		a:link, a:visited {
+			background-color: #E5383B;
+			color: #F5F3F4;
+			border: 0.1em solid #E5383B;
+			border-radius: 0.2em;
+			padding: 14px 25px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			transition: all 0.5s;
+		}
+		a:hover, a:active {
+			background-color:#F5F3F4;
+			color: #E5383B;
+		}
+		.scrollTextbox {
+			height:300px;
+			width:600px;
+			overflow:scroll;
+			background: #161A1D;
+		}
+		
+
+	</style>
+    <body>
+		<div class="col-2">
+			<header>
+				<img src="images/L3Harris.png" alt="L3Harris Logo" style="width:300px;" align="left">
+				<img src="images/USU_MAE.png" alt="USU logo" style="width:250px; margin:10px auto 20px;" align="right">
+			</header>
+			<div style="height:2px;background-color: #F5F3F4;"> </div	>
+			<h2 class="txtCenter" style="padding: 40px; margin: 0; background-color: rgba(0,0,0,.9); color: #F5F3F4; ">TEAM MEMBERS</h2>
+			<div style="height:2px;background-color: #F5F3F4;"> </div	>		
+			<main class="content">
+				<div class="act-col">
+					<p class="columns" style="font-weight: bold;">Tyler Lott</p>
+					<div class="output">
+						<div class="vert_center">
+							<img src="images/Tyler.png" alt="Tyler Lott" style="height:340px; padding:20px" align="center">
+						</div>
+						<div class="vert_center">
+							<p id="unit-in" class="p-out-small">Tylerlott0126@gmail.com</p>
+						</div>
+					</div>			
+				</div> 
+
+
+				<div class="sen-col">
+					<p class="columns" style="font-weight: bold;">Thomas Lloyd</p>
+					<div class="output">
+						<div class="vert_center">
+							<img src="images/Thomas.png" alt="Thomas Lloyd" style="height:340px; padding:20px" align="center">
+						</div>
+						<div class="vert_center">
+							<p id="unit-in" class="p-out-small">Thomasclloyd96@gmail.com</p>
+						</div>
+					</div>
+				</div> 
+
+
+				<div class="act-col">
+					<p class="columns" style="font-weight: bold;">Reed Thurber</p>
+					<div class="output">
+						<div class="vert_center">
+							<img src="images/Reed.png" alt="Reed Thurber" style="height:340px; padding:20px" align="center">
+						</div>
+						<div class="vert_center">
+							<p id="unit-in" class="p-out-small">rthurber3@gmail.com</p>
+						</div>
+					</div>
+				</div> 
+
+
+				<div class="sen-col">
+					<p class="columns" style="font-weight: bold;">Ben Allen</p>
+					<div class="output">
+						<div class="vert_center">
+							<img src="images/Ben.png" alt="Ben Allen" style="height:340px; padding:20px" align="center">
+						</div>
+						<div class="vert_center">
+							<p id="unit-in" class="p-out-small">BenjaminAllen1221@gmail.com</p>
+						</div>
+					</div>
+				</div> 
+			</main>
+				<h2 align="center">About the Team</h2>
+				<p id="about section" style="width:50vw; margin-left:25vw" align="center">
+					We are a group of undergraduate seniors in the Mechanical and Aerospace Engineering Department at Utah State Universit.
+					Our interests range from aerodynamics and controls to machine learning. The project we were tasked with was to build a leveling
+					system for legacy tripod systems to speed up the deployment time of the systems. We were extremely challeged by the project and
+					were able to learn a significant amount. 
+				</p>
+				<p id="about section2" style="width:50vw; margin-left:25vw; font-size:14pt; font-weight: 600;" align="center">
+					We would like to give L3Harris a huge THANK YOU for giving us this oportunity.
+				</p>
+			<footer>
+				<div><p class="center" style="text-size: 10pt; color:#F5F3F4;">Utah State University MAE Capstone Design Project</p></div>
+				<div class="txtCenter"><a href="/">Platform Interface</a></div>		
+			</footer>
+		</div>
+    </body>
+</html>
