@@ -13,12 +13,8 @@ USU MAE Captstone Project - L3Harris Self-Leveling Platform
 	* [Raspberry Pi as Wifi Host](#raspberry-pi-as-wifi-host)
 * [Using Software](#using-software)
 	* [Physical Interface](#physical-interface)
-		* [LCD Display](#lcd-display)
-		* [Button Control](#button-control)
 	* [Debug Interface](#debug-interface)
 		* [Platform Interface](#platform-interface)
-		* [User Input](#user-input)
-		* [Terminal Output](#terminal-output)
 
 
 # About the Team
@@ -99,7 +95,7 @@ To get the pi to host a webserver through it's own wifi network
 
 interface=wlan0
 driver=nl80211
-ssid=RPiHotSpot
+ssid=L3Platform
 hw_mode=g
 channel=6
 wmm_enabled=0
@@ -107,7 +103,7 @@ macaddr_acl=0
 auth_algs=1
 ignore_broadcast_ssid=0
 wpa=2
-wpa_passphrase=1234567890
+wpa_passphrase=I<3L3Harris
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
 rsn_pairwise=CCMP
@@ -152,14 +148,15 @@ Done, see [this website](https://superuser.com/questions/1503862/raspberry-pi-4-
 
 ## Physical Interface
 
-### LCD Display
-
-### Button Control
+The physical interface will startup on boot. It will lead you through any options avaliable. The program will be paused and require a button press at several points to start the full leveling system.
 
 ## Debug Interface
 
+The debug interface is accessed through the wifi hosted by the raspberry pi, "L3Platform". Once connected you can acces the web application by entering the ip address 192.168.50.10 into an internet browser, or you can scan the qr code on the main electronics housing with a smartphone. 
+
 ### Platform Interface
 
-### User Input
+Once in the interface, there are two sections on the page. The first gives output of the actuator and sensor readings during leveling. It also alows the user to inpur values to move the actuator a certain about between -2 and 2 inches.
 
-### Terminal Output
+The second area gives a terminal output of more fine detail of what is going on during the running of the program. This will also log any user inputs that are sent to the platform. This will be cleared each time the platform power is cut. 
+
