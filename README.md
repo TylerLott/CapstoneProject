@@ -16,6 +16,8 @@ USU MAE Captstone Project - L3Harris Self-Leveling Platform
 	* [Debug Interface](#debug-interface)
 		* [Platform Interface](#platform-interface)
 
+# PLEASE SEE [THIS REPO FOR CODE](https://github.com/TylerLott/CapstoneProject)
+
 
 # About the Team
 
