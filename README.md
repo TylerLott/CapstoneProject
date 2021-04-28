@@ -36,6 +36,7 @@ text
 
 ## Members
 
+![alt text](https://github.com/TylerLott/CapstoneProject/blob/WebsiteFiles/images/Tyler.png?raw=true)
 text - images
 
 # About the Project
